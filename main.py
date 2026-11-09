@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 debugging_enabled = False
 
 # Configure sending methods
-email = False
+email = True
 groupme = True
 
 VERSE_START = re.compile(r"^\s*[1-3]?\s*[A-Za-z]+\s+\d+:\d+\b")
@@ -181,10 +181,10 @@ def main():
             else:
                 # Load environment file to grab secrets
                 load_dotenv()
-                email = os.getenv('email')
-                password = os.getenv('password')
+                smtp_email = os.getenv('email')
+                smtp_password = os.getenv('password')
                 # Send final email with correct parameters
-                send_email(email, password, data_now[1], i[1], out)
+                send_email(smtp_email, smtp_password, data_now[1], i[1], out)
     
     # If groupme support is enabled send groupme message
     if groupme == True:
