@@ -71,22 +71,22 @@ def render_email(today, name, reference, verse, header):
 
     return output
 
-def send_email(email, secret, subject, recipient, content):
+def send_email(email, domain, secret, subject, recipient, content):
     # Email variables
     msg = EmailMessage()
     msg['Subject'] = subject
-    msg['From'] = "bible@lakecraftmc.org"
+    msg['From'] = email
     msg['To'] = recipient
     # Add HTML content to email
     msg.set_content(content, subtype='html')
 
     # Authenticate with secret and send email
-    with smtplib.SMTP_SSL('mail.lakecraftmc.org', 465) as smtp:
+    with smtplib.SMTP_SSL(domain, 465) as smtp:
         smtp.login(msg['From'], secret)
         smtp.send_message(msg)
 
 # --- GroupMe specific functions ---
-def render_groupme(verse):
+def render_groupme(verse, reference):
     # Set up basic jinja2 environment
     env = Environment(loader = FileSystemLoader('templates'))
     # Load the template
@@ -94,6 +94,7 @@ def render_groupme(verse):
 
     # Render the template, given the variables
     output = template.render(
+        reference = reference,
         verse = verse
     )
 
@@ -165,7 +166,7 @@ def main():
     # If email sending is enabled send emails
     if email == True:
         for i in people:
-            # Render the new html file
+            # Render the new html file 
             out = render_email(today, i[0], reference, verses, data_now[1])
 
             # If debugging is enabled, do not send email
@@ -183,19 +184,21 @@ def main():
                 load_dotenv()
                 smtp_email = os.getenv('email')
                 smtp_password = os.getenv('password')
+                smtp_server = os.getenv('smtp_server')
+
                 # Send final email with correct parameters
-                send_email(smtp_email, smtp_password, data_now[1], i[1], out)
+                send_email(smtp_email, smtp_server, smtp_password, data_now[1], i[1], out)
     
     # If groupme support is enabled send groupme message
     if groupme == True:
         # Render GroupMe message
-        out = render_groupme(verses)
+        out = render_groupme(verses, reference)
         
         # If debugging is enabled, do not send GroupMe message
         # Instead, write output to txt file (groupme_message.txt)
         if debugging_enabled == True:
                 # Using io.open() function
-                html = "./out/groupme_message.txt"
+                txt = "./out/groupme_message.txt"
 
                 # Open the file in write mode using io.open()
                 with io.open(txt, 'w', encoding='utf-8') as file:
