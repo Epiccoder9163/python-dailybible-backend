@@ -14,7 +14,7 @@ from jinja2 import Environment, FileSystemLoader
 from dotenv import load_dotenv
 
 # Configure debugging
-debugging_enabled = False
+debugging_enabled = True
 
 # Configure sending methods
 email = True
@@ -151,8 +151,10 @@ def main():
     verses = ""
     for i in references:
         verse = get_reference(i)
-        verses += verse + " "
-
+        if verse != None:
+            verses += verse + " "
+    if verses == "":
+        verses = "There was an issue with the parsing system and no verses were pulled."
     print(verses)
 
     # Combine references list into a single string
